@@ -73,7 +73,7 @@ const AP_Param::GroupInfo AP_VideoTX::var_info[] = {
     // @DisplayName: Video Transmitter Max Power Level
     // @Description: Video Transmitter Maximum Power Level. Different VTXs support different power levels, this prevents the power aux switch from requesting too high a power level. The switch supports 6 power levels and the selected power will be a subdivision between 0 and this setting.
     // @Range: 25 1000
-    AP_GROUPINFO("MAX_POWER", 7, AP_VideoTX, _max_power_mw, 800),
+    AP_GROUPINFO("MAX_POWER", 7, AP_VideoTX, _max_power_mw, 2500),
 
     AP_GROUPEND
 };
@@ -105,18 +105,42 @@ const uint16_t AP_VideoTX::VIDEO_CHANNELS[AP_VideoTX::MAX_BANDS][VTX_MAX_CHANNEL
 // mapping of power level to milliwatt to dbm
 // valid power levels from SmartAudio spec, the adjacent levels might be the actual values
 // so these are marked as level + 0x10 and will be switched if a dbm message proves it
+// AP_VideoTX::PowerLevel AP_VideoTX::_power_levels[VTX_MAX_POWER_LEVELS] = {
+//     // level, mw, dbm, dac
+//     { 0xFF,  0,    0, 0    }, // only in SA 2.1
+//     { 0,    25,   14, 7    },
+//     { 0x11, 100,  20, 0xFF }, // only in SA 2.1
+//     { 1,    200,  23, 16   },
+//     { 0x12, 400,  26, 0xFF }, // only in SA 2.1
+//     { 2,    500,  27, 25   },
+//     //{ 0x13, 600,  28, 0xFF },
+//     { 3,    800,  29, 40   },
+//     { 0x13, 1000, 30, 0xFF }, // only in SA 2.1
+//     { 0xFF, 0,    0,  0XFF, PowerActive::Inactive }  // slot reserved for a custom power level
+// };
+
+// https://geprc.com/product/geprc-rad-vtx-5-8g-2-5w/
+// vtxtable powervalues 25 200 600 1600 2500
+// vtxtable powerlabels 25 200 600 1W6 2W5
+// AP_VideoTX::PowerLevel AP_VideoTX::_power_levels[VTX_MAX_POWER_LEVELS] = {
+//     // level, mw, dbm, dac
+//     { 0,    25,   14, 0xFF },
+//     { 1,    200,  23, 0xFF },
+//     { 2,    600,  28, 0xFF },
+//     { 3,    1600, 32, 0xFF },
+//     { 4,    2500, 34, 0xFF },
+//     { 0xFF, 0,    0,  0XFF, PowerActive::Inactive }  // slot reserved for a custom power level
+// };
+
+// https://www.akktek.com/products/vtx/fx2-dominator.html
+// 0/1/2/3 -> 250mW/500mW/1000mW/2000mW
 AP_VideoTX::PowerLevel AP_VideoTX::_power_levels[VTX_MAX_POWER_LEVELS] = {
     // level, mw, dbm, dac
-    { 0xFF,  0,    0, 0    }, // only in SA 2.1
-    { 0,    25,   14, 7    },
-    { 0x11, 100,  20, 0xFF }, // only in SA 2.1
-    { 1,    200,  23, 16   },
-    { 0x12, 400,  26, 0xFF }, // only in SA 2.1
-    { 2,    500,  27, 25   },
-    //{ 0x13, 600,  28, 0xFF },
-    { 3,    800,  29, 40   },
-    { 0x13, 1000, 30, 0xFF }, // only in SA 2.1
-    { 0xFF, 0,    0,  0XFF, PowerActive::Inactive }  // slot reserved for a custom power level
+    { 0,    250,  24, 0xFF, PowerActive::Active },
+    { 1,    500,  27, 0xFF, PowerActive::Active },
+    { 2,    1000, 30, 0xFF, PowerActive::Inactive },
+    { 3,    2000, 33, 0xFF, PowerActive::Active },
+    { 0xFF, 0,    33, 0XFF, PowerActive::Inactive }  // slot reserved for a custom power level
 };
 
 AP_VideoTX::AP_VideoTX()
@@ -535,16 +559,10 @@ void AP_VideoTX::change_power(int8_t position)
         }
     }
 
-    if (power == 0) {
-        if (!hal.util->get_soft_armed()) {    // don't allow pitmode to be entered if already armed
-            set_configured_options(get_configured_options() | uint8_t(VideoOptions::VTX_PITMODE));
-        }
-    } else {
-        if (has_option(VideoOptions::VTX_PITMODE)) {
-            set_configured_options(get_configured_options() & ~uint8_t(VideoOptions::VTX_PITMODE));
-        }
-        set_configured_power_mw(power);
+    if (has_option(VideoOptions::VTX_PITMODE)) {
+        set_configured_options(get_configured_options() & ~uint8_t(VideoOptions::VTX_PITMODE));
     }
+    set_configured_power_mw(power);
 }
 
 namespace AP {
