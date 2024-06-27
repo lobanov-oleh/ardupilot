@@ -122,26 +122,26 @@ const uint16_t AP_VideoTX::VIDEO_CHANNELS[AP_VideoTX::MAX_BANDS][VTX_MAX_CHANNEL
 // https://geprc.com/product/geprc-rad-vtx-5-8g-2-5w/
 // vtxtable powervalues 25 200 600 1600 2500
 // vtxtable powerlabels 25 200 600 1W6 2W5
-// AP_VideoTX::PowerLevel AP_VideoTX::_power_levels[VTX_MAX_POWER_LEVELS] = {
-//     // level, mw, dbm, dac
-//     { 0,    25,   14, 0xFF },
-//     { 1,    200,  23, 0xFF },
-//     { 2,    600,  28, 0xFF },
-//     { 3,    1600, 32, 0xFF },
-//     { 4,    2500, 34, 0xFF },
-//     { 0xFF, 0,    0,  0XFF, PowerActive::Inactive }  // slot reserved for a custom power level
-// };
+AP_VideoTX::PowerLevel AP_VideoTX::_power_levels[VTX_MAX_POWER_LEVELS] = {
+    // level, mw, dbm, dac
+    { 0,    25,   14, 0xFF, PowerActive::Inactive },
+    { 1,    200,  23, 0xFF, PowerActive::Active },
+    { 2,    600,  28, 0xFF, PowerActive::Active },
+    { 3,    1600, 32, 0xFF, PowerActive::Inactive },
+    { 4,    2500, 34, 0xFF, PowerActive::Active },
+    { 0xFF, 0,    0,  0XFF, PowerActive::Inactive }  // slot reserved for a custom power level
+};
 
 // https://www.akktek.com/products/vtx/fx2-dominator.html
 // 0/1/2/3 -> 250mW/500mW/1000mW/2000mW
-AP_VideoTX::PowerLevel AP_VideoTX::_power_levels[VTX_MAX_POWER_LEVELS] = {
-    // level, mw, dbm, dac
-    { 0,    250,  24, 0xFF, PowerActive::Active },
-    { 1,    500,  27, 0xFF, PowerActive::Active },
-    { 2,    1000, 30, 0xFF, PowerActive::Inactive },
-    { 3,    2000, 33, 0xFF, PowerActive::Active },
-    { 0xFF, 0,    33, 0XFF, PowerActive::Inactive }  // slot reserved for a custom power level
-};
+// AP_VideoTX::PowerLevel AP_VideoTX::_power_levels[VTX_MAX_POWER_LEVELS] = {
+//     // level, mw, dbm, dac
+//     { 0,    250,  24, 0xFF, PowerActive::Active },
+//     { 1,    500,  27, 0xFF, PowerActive::Active },
+//     { 2,    1000, 30, 0xFF, PowerActive::Inactive },
+//     { 3,    2000, 33, 0xFF, PowerActive::Active },
+//     { 0xFF, 0,    33, 0XFF, PowerActive::Inactive }  // slot reserved for a custom power level
+// };
 
 AP_VideoTX::AP_VideoTX()
 {

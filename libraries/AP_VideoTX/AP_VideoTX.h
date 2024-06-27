@@ -25,11 +25,11 @@
 // ******************************************************
 // https://geprc.com/product/geprc-rad-vtx-5-8g-2-5w/
 // vtxtable powervalues 25 200 600 1600 2500
-// #define VTX_MAX_POWER_LEVELS 6
+#define VTX_MAX_POWER_LEVELS 6
 // ******************************************************
 // https://www.akktek.com/products/vtx/fx2-dominator.html
 // 0/1/2/3 -> 250mW/500mW/1000mW/2000mW
-#define VTX_MAX_POWER_LEVELS 5
+// #define VTX_MAX_POWER_LEVELS 5
 
 class AP_VideoTX {
 public:
